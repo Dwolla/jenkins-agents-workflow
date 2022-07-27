@@ -7,18 +7,23 @@ on:
         type: string
         required: false
         default: sha-a9c907d-core-4.13.2-1-jdk11-7b03219
+        description: NVM_TAG to build
       CORE_TAG:
         type: string
         required: false
         default: 4.13.2-1-jdk11-7b03219
-      CORE_MATRIX:
+        description: CORE_TAG to build
+      BUILD_JDK_8:
+        description: Whether or not to build image with JDK 8 base image as well as JDK 11.
         type: boolean
         required: false
         default: false
       IMAGE_NAME:
+        description: Name of image to publish to dockerhub, e.g. 'dwolla/my-image'
         type: string
         required: true
       TAG_NAME:
+        description: ARG input into Dockerfile for tag (e.g. NVM_TAG, CORE_TAG, etc.)
         type: string
         required: true
     secrets: 
@@ -32,95 +37,31 @@ env:
 
 jobs:
   build:
-    if: ${{ inputs.CORE_MATRIX }} == false
+    if: ${{ inputs.BUILD_JDK_8 }} == false
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
-        uses: docker/login-action@v1
+      - name: Build and Push Docker Image
+        uses: Dwolla/jenkins-agents-workflow/.github/actions/build@main
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # https://github.com/docker/metadata-action
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{inputs.IMAGE_NAME}}
-          # Docker tags based on the following events/attributes
-          tags: |
-            type=sha,prefix=${{ env.TAG }}-
-
-      # https://github.com/docker/build-push-action
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v')) }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: ${{ inputs.TAG_NAME }}=${{ env.TAG }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          BASE_TAG: ${{ env.TAG }}
+          TAG_NAME: ${{ inputs.TAG_NAME }}
+          IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
   build-matrix:
     strategy:
       matrix:
         TAG:
           - ${{ inputs[inputs.TAG_NAME] }}
           - 4.13.2-1-jdk8-7b03219
-    if: ${{ inputs.CORE_MATRIX }}
+    if: ${{ inputs.BUILD_JDK_8 }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
-        uses: docker/login-action@v1
+      - name: Build and Push Docker Image
+        uses: Dwolla/jenkins-agents-workflow/.github/actions/build@main
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # https://github.com/docker/metadata-action
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{inputs.IMAGE_NAME}}
-          # Docker tags based on the following events/attributes
-          tags: |
-            type=sha,prefix=${{ matrix.TAG }}-
-
-      # https://github.com/docker/build-push-action
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v')) }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: ${{ inputs.TAG_NAME }}=${{ matrix.TAG }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          BASE_TAG: ${{ matrix.TAG }}
+          TAG_NAME: ${{ inputs.TAG_NAME }}
+          IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
