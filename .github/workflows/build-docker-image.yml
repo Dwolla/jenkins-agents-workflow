@@ -13,19 +13,19 @@ on:
         required: false
         default: 4.13.2-1-jdk11-7b03219
         description: CORE_TAG to build
-      BUILD_JDK_8:
-        description: Whether or not to build image with JDK 8 base image as well as JDK 11.
-        type: boolean
-        required: false
-        default: false
       IMAGE_NAME:
         description: Name of image to publish to dockerhub, e.g. 'dwolla/my-image'
         type: string
         required: true
       TAG_NAME:
-        description: ARG input into Dockerfile for tag (e.g. NVM_TAG, CORE_TAG, etc.)
+        description: ARG input into Dockerfile for tag (valid options are NVM_TAG, CORE_TAG, CORE_TAG_JDK8_JDK11)
         type: string
         required: true
+      PLATFORMS:
+        description: Platforms to build for (i.e. linux/arm64)
+        type: string
+        required: false
+        default: linux/amd64,linux/arm64
     secrets: 
       DOCKERHUB_USERNAME:
         required: true
@@ -37,7 +37,7 @@ env:
 
 jobs:
   build:
-    if: ${{ inputs.BUILD_JDK_8 }} == false
+    if: ${{ inputs.TAG_NAME != 'CORE_TAG_JDK8_JDK11' }}
     runs-on: ubuntu-latest
     steps:
       - name: Build and Push Docker Image
@@ -48,13 +48,13 @@ jobs:
           BASE_TAG: ${{ env.TAG }}
           TAG_NAME: ${{ inputs.TAG_NAME }}
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
-  build-matrix:
+  build-jdk-matrix:
     strategy:
       matrix:
         TAG:
-          - ${{ inputs[inputs.TAG_NAME] }}
+          - 4.13.2-1-jdk11-7b03219
           - 4.13.2-1-jdk8-7b03219
-    if: ${{ inputs.BUILD_JDK_8 }}
+    if: ${{ inputs.TAG_NAME == 'CORE_TAG_JDK8_JDK11' }}
     runs-on: ubuntu-latest
     steps:
       - name: Build and Push Docker Image
@@ -63,5 +63,5 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           BASE_TAG: ${{ matrix.TAG }}
-          TAG_NAME: ${{ inputs.TAG_NAME }}
+          TAG_NAME: "CORE_TAG"
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
