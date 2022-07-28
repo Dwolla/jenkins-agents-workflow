@@ -48,6 +48,7 @@ jobs:
           BASE_TAG: ${{ env.TAG }}
           TAG_NAME: ${{ inputs.TAG_NAME }}
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
+          PLATFORMS: ${{ inputs.PLATFORMS }}
   build-jdk-matrix:
     strategy:
       matrix:
