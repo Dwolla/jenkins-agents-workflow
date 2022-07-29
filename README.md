@@ -2,7 +2,8 @@
 Reusable workflow for building and pushing jenkins agents docker images.
 
 SUPPORTED TAG NAMES:
-* NVM_TAG
+* NVM_TAG (defaults to core JDK11)
+* NVM_TAG_JDK8_JDK11 (builds matrix for core JDK8 and JDK11)
 * CORE_TAG (defaults to JDK11)
 * CORE_TAG_JDK8_JDK11 (builds matrix for JDK8 and JDK11 defaults)
 
