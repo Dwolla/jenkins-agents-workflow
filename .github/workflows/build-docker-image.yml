@@ -6,7 +6,7 @@ on:
       NVM_TAG:
         type: string
         required: false
-        default: sha-a9c907d-core-4.13.2-1-jdk11-7b03219
+        default: 4.13.2-1-jdk11-7b03219-a7f7fa0
         description: NVM_TAG to build
       CORE_TAG:
         type: string
@@ -71,8 +71,8 @@ jobs:
     strategy:
       matrix:
         TAG:
-          - sha-a9c907d-core-4.13.2-1-jdk11-7b03219
-          - sha-a9c907d-core-4.13.2-1-jdk8-7b03219
+          - 4.13.2-1-jdk11-7b03219-a7f7fa0
+          - 4.13.2-1-jdk8-7b03219-a7f7fa0
     if: ${{ inputs.TAG_NAME == 'NVM_TAG_JDK8_JDK11' }}
     runs-on: ubuntu-latest
     steps:
