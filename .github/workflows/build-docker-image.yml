@@ -11,7 +11,7 @@ on:
       CORE_TAG:
         type: string
         required: false
-        default: 4.13.2-1-jdk11-7b03219
+        default: 4.13.2-1-jdk11-5a9ba13
         description: CORE_TAG to build
       IMAGE_NAME:
         description: Name of image to publish to dockerhub, e.g. 'dwolla/my-image'
@@ -53,8 +53,8 @@ jobs:
     strategy:
       matrix:
         TAG:
-          - 4.13.2-1-jdk11-7b03219
-          - 4.13.2-1-jdk8-7b03219
+          - 4.13.2-1-jdk11-5a9ba13
+          - 4.13.2-1-jdk8-5a9ba13
     if: ${{ inputs.TAG_NAME == 'CORE_TAG_JDK8_JDK11' }}
     runs-on: ubuntu-latest
     steps:
