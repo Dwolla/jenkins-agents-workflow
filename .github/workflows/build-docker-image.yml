@@ -8,10 +8,20 @@ on:
         required: false
         default: 4.13.2-1-jdk11-5a9ba13-a7f7fa0
         description: NVM_TAG to build
+      NVM_TAG_JDK8:
+        type: string
+        required: false
+        default: 4.13.2-1-jdk8-5a9ba13-a7f7fa0
+        description: NVM_TAG to build
       CORE_TAG:
         type: string
         required: false
         default: 4.13.2-1-jdk11-5a9ba13
+        description: CORE_TAG to build
+      CORE_TAG_JDK8:
+        type: string
+        required: false
+        default: 4.13.2-1-jdk8-5a9ba13
         description: CORE_TAG to build
       IMAGE_NAME:
         description: Name of image to publish to dockerhub, e.g. 'dwolla/my-image'
@@ -26,6 +36,15 @@ on:
         type: string
         required: false
         default: linux/amd64,linux/arm64
+      SUB_DIRECTORY:
+        description: Sub directory where dockerfile is located
+        type: string
+        required: false
+      ACTION_BRANCH:
+        description: Branch with build action to call (defaults to main)
+        type: string
+        required: false
+        default: main
     secrets: 
       DOCKERHUB_USERNAME:
         required: true
@@ -36,12 +55,18 @@ env:
   TAG: ${{ inputs[inputs.TAG_NAME] }}
 
 jobs:
+
   build:
     if: ${{ inputs.TAG_NAME == 'NVM_TAG' || inputs.TAG_NAME == 'CORE_TAG' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: Dwolla/jenkins-agents-workflow
+          ref: ${{ inputs.ACTION_BRANCH }}
       - name: Build and Push Docker Image
-        uses: Dwolla/jenkins-agents-workflow/.github/actions/build@main
+        uses: ./.github/actions/build
         with:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -49,39 +74,88 @@ jobs:
           TAG_NAME: ${{ inputs.TAG_NAME }}
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
           PLATFORMS: ${{ inputs.PLATFORMS }}
+          SUB_DIRECTORY: ${{ inputs.SUB_DIRECTORY }}
 
-  build-core-matrix:
-    strategy:
-      matrix:
-        TAG:
-          - 4.13.2-1-jdk11-5a9ba13
-          - 4.13.2-1-jdk8-5a9ba13
+
+  build-core-jdk8:
     if: ${{ inputs.TAG_NAME == 'CORE_TAG_JDK8_JDK11' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: Dwolla/jenkins-agents-workflow
+          ref: ${{ inputs.ACTION_BRANCH }}
       - name: Build and Push Docker Image
-        uses: Dwolla/jenkins-agents-workflow/.github/actions/build@main
+        uses: ./.github/actions/build
         with:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          BASE_TAG: ${{ matrix.TAG }}
+          BASE_TAG: ${{ inputs.CORE_TAG_JDK8 }}
           TAG_NAME: "CORE_TAG"
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
+          PLATFORMS: linux/amd64
+          SUB_DIRECTORY: ${{ inputs.SUB_DIRECTORY }}
 
-  build-nvm-matrix:
-    strategy:
-      matrix:
-        TAG:
-          - 4.13.2-1-jdk11-5a9ba13-a7f7fa0
-          - 4.13.2-1-jdk8-5a9ba13-a7f7fa0
+
+  build-core-jdk11:
+    if: ${{ inputs.TAG_NAME == 'CORE_TAG_JDK8_JDK11' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: Dwolla/jenkins-agents-workflow
+          ref: ${{ inputs.ACTION_BRANCH }}
+      - name: Build and Push Docker Image
+        uses: ./.github/actions/build
+        with:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          BASE_TAG: ${{ inputs.CORE_TAG }}
+          TAG_NAME: "CORE_TAG"
+          IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
+          PLATFORMS: ${{ inputs.PLATFORMS }}
+          SUB_DIRECTORY: ${{ inputs.SUB_DIRECTORY }}
+
+
+  build-nvm-jdk8:
     if: ${{ inputs.TAG_NAME == 'NVM_TAG_JDK8_JDK11' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: Dwolla/jenkins-agents-workflow
+          ref: ${{ inputs.ACTION_BRANCH }}
       - name: Build and Push Docker Image
-        uses: Dwolla/jenkins-agents-workflow/.github/actions/build@main
+        uses: ./.github/actions/build
         with:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          BASE_TAG: ${{ matrix.TAG }}
+          BASE_TAG: ${{ inputs.NVM_TAG_JDK8 }}
           TAG_NAME: "NVM_TAG"
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
+          PLATFORMS: linux/amd64
+          SUB_DIRECTORY: ${{ inputs.SUB_DIRECTORY }}
+
+  build-nvm-jdk11:
+    if: ${{ inputs.TAG_NAME == 'NVM_TAG_JDK8_JDK11' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: Dwolla/jenkins-agents-workflow
+          ref: ${{ inputs.ACTION_BRANCH }}
+      - name: Build and Push Docker Image
+        uses: ./.github/actions/build
+        with:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          BASE_TAG: ${{ inputs.NVM_TAG }}
+          TAG_NAME: "NVM_TAG"
+          IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
+          PLATFORMS: ${{ inputs.PLATFORMS }}
+          SUB_DIRECTORY: ${{ inputs.SUB_DIRECTORY }}
+

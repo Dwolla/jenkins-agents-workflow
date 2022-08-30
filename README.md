@@ -3,9 +3,9 @@ Reusable workflow for building and pushing jenkins agents docker images.
 
 SUPPORTED TAG NAMES:
 * NVM_TAG (defaults to core JDK11)
-* NVM_TAG_JDK8_JDK11 (builds matrix for core JDK8 and JDK11)
+* NVM_TAG_JDK8_JDK11 (builds amd64 for JDK8 and arm64/amd64 for JDK11)
 * CORE_TAG (defaults to JDK11)
-* CORE_TAG_JDK8_JDK11 (builds matrix for JDK8 and JDK11 defaults)
+* CORE_TAG_JDK8_JDK11 (builds amd64 for JDK8 and arm64/amd64 for JDK11)
 
 ## Common Usage:
 
@@ -97,4 +97,26 @@ jobs:
 ## Development & Contribution
 
 To test changes, push to a new branch on jenkins-agents-workflows and modify caller-workflow to point to new branch.
-* _Note: To test changes to the [composite action](./github/actions/build/action.yml) in this repository, also modify the action call in [jenkins-agent-workflow build.yml](./github/workflows/build.yml) on your branch to point to your workflow._
+Also, tests run automatically for the currently supported tag names.
+
+## Utilizing `yq` to build caller workflow images locally
+
+With [yq](https://kislyuk.github.io/yq/) installed to build a caller image locally run the following command to retrieve the tag name:
+
+```
+curl --silent https://raw.githubusercontent.com/Dwolla/jenkins-agents-workflow/main/.github/workflows/build-docker-image.yml | yq -r .on.workflow_call.inputs.<my-core-tag>.default
+```
+
+Where `my-core-tag`&nbsp; is one of the following:
+* `NVM_TAG`
+* `NVM_TAG_JDK8`
+* `CORE_TAG`
+* `CORE_TAG_JDK8`.
+
+Alternatively, without [yq](https://kislyuk.github.io/yq/) installed, refer to the default value(s) defined in [jenkins-agents-workflow](https://github.com/Dwolla/jenkins-agents-workflow/blob/main/.github/workflows/build-docker-image.yml):
+
+Finally, run the following command:
+
+`make <my-core-tag-arg-name>=<default-value-from-jenkins-agents-workflow> all`
+
+Where `my-core-tag-arg-name` is defined in the Dockerfile and/or Makefile of the caller workflow.
