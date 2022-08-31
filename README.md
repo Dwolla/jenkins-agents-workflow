@@ -98,25 +98,3 @@ jobs:
 
 To test changes, push to a new branch on jenkins-agents-workflows and modify caller-workflow to point to new branch.
 Also, tests run automatically for the currently supported tag names.
-
-## Utilizing `yq` to build caller workflow images locally
-
-With [yq](https://kislyuk.github.io/yq/) installed to build a caller image locally run the following command to retrieve the tag name:
-
-```
-curl --silent https://raw.githubusercontent.com/Dwolla/jenkins-agents-workflow/main/.github/workflows/build-docker-image.yml | yq -r .on.workflow_call.inputs.<my-core-tag>.default
-```
-
-Where `my-core-tag`&nbsp; is one of the following:
-* `NVM_TAG`
-* `NVM_TAG_JDK8`
-* `CORE_TAG`
-* `CORE_TAG_JDK8`.
-
-Alternatively, without [yq](https://kislyuk.github.io/yq/) installed, refer to the default value(s) defined in [jenkins-agents-workflow](https://github.com/Dwolla/jenkins-agents-workflow/blob/main/.github/workflows/build-docker-image.yml):
-
-Finally, run the following command:
-
-`make <my-core-tag-arg-name>=<default-value-from-jenkins-agents-workflow> all`
-
-Where `my-core-tag-arg-name` is defined in the Dockerfile and/or Makefile of the caller workflow.
