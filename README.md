@@ -3,9 +3,7 @@ Reusable workflow for building and pushing jenkins agents docker images.
 
 SUPPORTED TAG NAMES:
 * NVM_TAG (defaults to core JDK11)
-* NVM_TAG_JDK8_JDK11 (builds amd64 for JDK8 and arm64/amd64 for JDK11)
 * CORE_TAG (defaults to JDK11)
-* CORE_TAG_JDK8_JDK11 (builds amd64 for JDK8 and arm64/amd64 for JDK11)
 
 ## Common Usage:
 
@@ -30,19 +28,6 @@ jobs:
     with:
       IMAGE_NAME: dwolla/jenkins-agent-*
       TAG_NAME: CORE_TAG
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-```
-
-Build image with jenkins-agent-core default base images for JDK8 and JDK11:
-```yml
-jobs:
-  build:
-    uses: Dwolla/jenkins-agents-workflow/.github/workflows/build-docker-image.yml@main
-    with:
-      IMAGE_NAME: dwolla/jenkins-agent-*
-      TAG_NAME: CORE_TAG_JDK8_JDK11
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -4,17 +4,6 @@ on:
   push:
 
 jobs:
-  test-nvm-jdk8-jdk11:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      IMAGE_NAME: test-nvm-jdk8-jdk11
-      TAG_NAME: NVM_TAG_JDK8_JDK11
-      SUB_DIRECTORY: test/NVM_TAG
-      ACTION_BRANCH: ${{ github.ref_name }}
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
   test-nvm:
     uses: ./.github/workflows/build-docker-image.yml
     with:
@@ -26,20 +15,8 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  test-core-jdk8-jdk11:
-    needs: [test-nvm-jdk8-jdk11, test-nvm]
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      IMAGE_NAME: test-core-jdk8-jdk11
-      TAG_NAME: CORE_TAG_JDK8_JDK11
-      SUB_DIRECTORY: test/CORE_TAG
-      ACTION_BRANCH: ${{ github.ref_name }}
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
   test-core:
-    needs: [test-nvm-jdk8-jdk11, test-nvm]
+    needs: [test-nvm]
     uses: ./.github/workflows/build-docker-image.yml
     with:
       IMAGE_NAME: test-core
@@ -51,7 +28,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   test-action:
-    needs: [test-core-jdk8-jdk11, test-core]
+    needs: [test-core]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -60,13 +37,13 @@ jobs:
         with:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          BASE_TAG: 8u322-b06-jre
+          BASE_TAG: 11.0.14.1_1-jre
           TAG_NAME: TEMURIN_TAG
           IMAGE_NAME: test-action
           SUB_DIRECTORY: test/build-action
 
   build-complete:
-    needs: [test-nvm-jdk8-jdk11, test-nvm, test-core-jdk8-jdk11, test-core, test-action]
+    needs: [test-nvm, test-core, test-action]
     runs-on: ubuntu-latest
     steps:
       - run: echo "The build completed successfully"
