@@ -6,7 +6,7 @@ on:
       NVM_TAG:
         type: string
         required: false
-        default: 4.13.2-1-jdk11-e720044-e7bb0a9
+        default: 4.13.2-1-jdk11-a73d9b7-e7bb0a9
         description: NVM_TAG to build
       CORE_TAG:
         type: string
