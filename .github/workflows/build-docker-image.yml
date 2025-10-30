@@ -11,7 +11,7 @@ on:
       CORE_TAG:
         type: string
         required: false
-        default: 4.13.2-1-jdk11-a73d9b7
+        default: 4.13.2-1-jdk11-a2c68f4
         description: CORE_TAG to build
       IMAGE_NAME:
         description: Name of image to publish to dockerhub, e.g. 'dwolla/my-image'
