@@ -42,8 +42,26 @@ jobs:
           IMAGE_NAME: test-action
           SUB_DIRECTORY: test/build-action
 
+  test-action-extra-build-args:
+    needs: [test-core]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/build
+        with:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          BASE_TAG: 11.0.14.1_1-jre
+          TAG_NAME: TEMURIN_TAG
+          EXTRA_BUILD_ARGS: |
+            EXTRA_ARG=expected-value
+          TAG_PREFIX: 11.0.14.1_1-jre-extra
+          IMAGE_NAME: test-action-extra-build-args
+          SUB_DIRECTORY: test/extra-build-args
+
   build-complete:
-    needs: [test-nvm, test-core, test-action]
+    needs: [test-nvm, test-core, test-action, test-action-extra-build-args]
     runs-on: ubuntu-latest
     steps:
       - run: echo "The build completed successfully"
