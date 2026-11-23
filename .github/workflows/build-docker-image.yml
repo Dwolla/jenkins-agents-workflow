@@ -30,6 +30,16 @@ on:
         description: Sub directory where dockerfile is located
         type: string
         required: false
+      EXTRA_BUILD_ARGS:
+        description: Additional Dockerfile build args, one KEY=value per line
+        type: string
+        required: false
+        default: ''
+      TAG_PREFIX:
+        description: Prefix for the published image tag (<TAG_PREFIX>-<sha>); defaults to the tag being built
+        type: string
+        required: false
+        default: ''
       ACTION_BRANCH:
         description: Branch with build action to call (defaults to main)
         type: string
@@ -65,4 +75,6 @@ jobs:
           IMAGE_NAME: ${{ inputs.IMAGE_NAME }}
           PLATFORMS: ${{ inputs.PLATFORMS }}
           SUB_DIRECTORY: ${{ inputs.SUB_DIRECTORY }}
+          EXTRA_BUILD_ARGS: ${{ inputs.EXTRA_BUILD_ARGS }}
+          TAG_PREFIX: ${{ inputs.TAG_PREFIX }}
 
